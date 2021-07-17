@@ -1,0 +1,84 @@
+notify_slack_channel = "C011B98EA5U"
+
+[[project]]
+repository = "go-sdk"
+pipeline = "go-sdk/prepare-release"
+
+[[project]]
+repository = "terraform-provider-lacework"
+pipeline = "terraform-provider-lacework/prepare-release"
+
+[[project]]
+repository = "terraform-kubernetes-agent"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-kubernetes-agent"]
+
+[[project]]
+repository = "terraform-gcp-gcr"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-gcr"]
+
+[[project]]
+repository = "terraform-gcp-config"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-config"]
+
+[[project]]
+repository = "terraform-gcp-audit-log"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-audit-log"]
+
+[[project]]
+repository = "terraform-gcp-service-account"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-service-account"]
+
+[[project]]
+repository = "terraform-azure-config"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-azure-config"]
+
+[[project]]
+repository = "terraform-azure-activity-log"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-azure-activity-log"]
+
+[[project]]
+repository = "terraform-azure-ad-application"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-azure-ad-application"]
+
+[[project]]
+repository = "terraform-aws-ecr"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-ecr"]
+
+[[project]]
+repository = "terraform-aws-iam-role"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-iam-role"]
+
+[[project]]
+repository = "terraform-aws-s3-data-export"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-s3-data-export"]
+
+[[project]]
+repository = "terraform-aws-ecs-agent"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-ecs-agent"]
+
+[[project]]
+repository = "terraform-aws-cloudtrail"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-cloudtrail"]
+
+[[project]]
+repository = "terraform-aws-config"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-config"]
+
+[[project]]
+repository = "terraform-aws-ssm-agent"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-ssm-agent"]
