@@ -15,8 +15,5 @@ func init() {
 }
 
 func debug() bool {
-	if os.Getenv("DEBUG") != "" {
-		return true
-	}
-	return false
+	return os.Getenv("DEBUG") != ""
 }

@@ -29,5 +29,7 @@ func main() {
 	// goroutine to listen to Slack events
 	go listenToSlackEvents(client, api, config)
 
-	client.Run()
+	if err := client.Run(); err != nil {
+		logger.Fatalw("unable to run ally Slack app", "error", err.Error())
+	}
 }
