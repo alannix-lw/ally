@@ -1,6 +1,9 @@
 GOLANGCILINTVERSION?=1.23.8
 GOIMPORTSVERSION?=v0.1.2
 GOXVERSION?=v1.0.1
+GOFLAGS=-mod=readonly
+CGO_ENABLED?=0
+export GOFLAGS CGO_ENABLED
 
 build:
 	gox -output="bin/ally-{{.OS}}-{{.Arch}}" \
