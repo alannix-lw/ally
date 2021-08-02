@@ -1,2 +1,2 @@
 # ally
-Your release ally (Slack App)
+👋 Your Release Ally (Slack App) 🚀
