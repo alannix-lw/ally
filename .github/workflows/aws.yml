@@ -39,6 +39,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Build
+      run: |
+        make install-tools
+        make vendor
+        make build
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
