@@ -4,5 +4,6 @@ LABEL maintainer="tech-ally@lacework.net" \
 
 COPY startup/ally.toml /cf-cli
 ADD bin/ally-linux-amd64 /usr/local/bin/ally
+RUN rm -f /root/.cfconfig
 
 ENTRYPOINT ["/usr/local/bin/ally"]
