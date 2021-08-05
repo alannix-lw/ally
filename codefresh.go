@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -126,11 +127,17 @@ func runCodefreshPipeline(api *slack.Client, config *c, callback slack.Interacti
 	if err != nil {
 		return errors.Wrap(err, "unable to create StdoutPipe")
 	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return errors.Wrap(err, "unable to create StderrPipe")
+	}
+
+	merged := io.MultiReader(stderr, stdout)
+	go readCommandBuffer(bufio.NewScanner(merged))
+
 	if err := cmd.Start(); err != nil {
 		return errors.Wrap(err, "unable to start command, buffer error")
 	}
-
-	go readCodefreshCommandBuffer(bufio.NewReader(stdout))
 
 	err = cmd.Wait()
 	if err == nil {
@@ -139,14 +146,9 @@ func runCodefreshPipeline(api *slack.Client, config *c, callback slack.Interacti
 	return err
 }
 
-func readCodefreshCommandBuffer(rd *bufio.Reader) {
-	for {
-		str, err := rd.ReadString('\n')
-		if err != nil {
-			logger.Errorw("unable to read codefresh output", "error", err.Error())
-			break
-		}
-		logger.Infow(str)
+func readCommandBuffer(scanner *bufio.Scanner) {
+	for scanner.Scan() {
+		logger.Info(scanner.Text())
 	}
 }
 
