@@ -88,7 +88,7 @@ func listenToSlackEvents(client *socketmode.Client, api *slack.Client, config *c
 				go func() {
 					if err := runCodefreshPipeline(api, config, callback); err != nil {
 						logger.Errorw("unable to run codefresh pipeline",
-							"error", err.Error(), "raw", callback)
+							"error", err, "raw", callback)
 					}
 				}()
 
@@ -125,7 +125,7 @@ func updateSlackMessage(api *slack.Client, channel string, timestamp string, opt
 	if err != nil {
 		logger.Errorw("unable to update message to slack channel",
 			"channel", channel,
-			"error", err.Error(),
+			"error", err,
 		)
 	}
 }
@@ -136,7 +136,7 @@ func postSlackMessage(api *slack.Client, channel string, options ...slack.MsgOpt
 	if err != nil {
 		logger.Errorw("unable to post message to slack channel",
 			"channel", channel,
-			"error", err.Error(),
+			"error", err,
 		)
 	}
 	return timestamp
@@ -148,7 +148,7 @@ func notifySlackChannel(api *slack.Client, channel, msg string) {
 	if err != nil {
 		logger.Errorw("unable to post message to slack channel",
 			"channel", channel,
-			"error", err.Error(),
+			"error", err,
 		)
 	}
 }

@@ -19,7 +19,7 @@ func defaultCodefreshConfig() string {
 	home, err := homedir.Dir()
 	if err != nil {
 		logger.Fatal("unable to find home directory",
-			"error", err.Error(),
+			"error", err,
 		)
 	}
 
