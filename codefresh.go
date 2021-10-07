@@ -99,7 +99,7 @@ func runCodefreshPipeline(api *slack.Client, config *c, callback slack.Interacti
 	)
 
 	timestamp := postSlackMessage(api, callback.Channel.ID,
-		slack.MsgOptionText(":waiting: Triggering the release of the *"+repo+"* project :rocket:", false),
+		slack.MsgOptionText(":waiting: Triggering the release PR of the *"+repo+"* project :rocket:", false),
 	)
 
 	var success bool
