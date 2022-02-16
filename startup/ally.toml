@@ -5,6 +5,10 @@ repository = "go-sdk"
 pipeline = "go-sdk/prepare-release"
 
 [[project]]
+repository = "lw-scanner-action"
+pipeline = "lw-scanner-action/prepare-release"
+
+[[project]]
 repository = "terraform-provider-lacework"
 pipeline = "terraform-provider-lacework/prepare-release"
 
