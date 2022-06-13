@@ -1,6 +1,7 @@
-# github.com/BurntSushi/toml v0.3.1
+# github.com/BurntSushi/toml v1.1.0
 ## explicit
 github.com/BurntSushi/toml
+github.com/BurntSushi/toml/internal
 # github.com/gorilla/websocket v1.4.2
 github.com/gorilla/websocket
 # github.com/lacework/go-sdk v0.10.0
