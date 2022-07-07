@@ -18,6 +18,11 @@ pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-kubernetes-agent"]
 
 [[project]]
+repository = "terraform-gcp-gke-audit-log"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-gke-audit-log"]
+
+[[project]]
 repository = "terraform-gcp-gar"
 pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-gcp-gar"]
