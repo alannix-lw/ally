@@ -63,6 +63,11 @@ pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-azure-ad-application"]
 
 [[project]]
+repository = "terraform-aws-eks-audit-log"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-eks-audit-log"]
+
+[[project]]
 repository = "terraform-aws-ecr"
 pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-aws-ecr"]
