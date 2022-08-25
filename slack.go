@@ -264,7 +264,7 @@ func handleAppMentionEvent(api *slack.Client, config *c, event *slackevents.AppM
 		slack.MarkdownType,
 		":waving: Hi there!\n\n"+
 			"There are three things I can help you with:\n\n"+
-			"*1. To trigger releases from the following <list of projects|https://lacework.atlassian.net/l/cp/J73uu2wh>*\nType: `/release`\n\n"+
+			"*1. To trigger releases from the following <https://lacework.atlassian.net/l/cp/J73uu2wh|list of projects>*\nType: `/release`\n\n"+
 			"*2. To sign the Lacework CLI artifacts*\nType: `@release_ally sign_cli VERSION BUILD_LINK`\n\n"+
 			"*3. To trigger Github Workflows*\nType: `@release_ally trigger_action:WORKFLOW_ID --repo [HOST/]OWNER/REPO`\n\n"+
 			"",
