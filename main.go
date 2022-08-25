@@ -12,12 +12,22 @@ func main() {
 		logger.Fatalw("missing dependency", "bin", "codefresh")
 	}
 
+	// verify if the github CLI is installed
+	if !githubCLIExists() {
+		logger.Fatalw("missing dependency", "bin", "gh")
+	}
+
 	// verify that there is a codefresh config on disk
 	// if there is not one, try to configure it
 	if err := config.verifyCodefreshConfig(); err != nil {
-		logger.Fatalw("unable to configure the codefresh CLI",
+		logger.Fatalw("unable to configure the Codefresh CLI",
 			"error", err.Error(),
 		)
+	}
+
+	// verify that the github CLI is configured via environment variable
+	if err := config.verifyGithubCLIConfig(); err != nil {
+		logger.Fatalw("Github CLI not configured", "error", err.Error())
 	}
 
 	// connecto to Slack
