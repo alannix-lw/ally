@@ -75,15 +75,7 @@ func fileExists(f string) bool {
 	return !info.IsDir()
 }
 
-func runCodefreshPipeline(api *slack.Client, config *c, callback slack.InteractionCallback) error {
-	var repo string
-	if callback.BlockActionState != nil {
-		actions := callback.BlockActionState.Values
-		for _, action := range actions {
-			repo = action[SlackTriggerTechAllyProject].SelectedOption.Value
-		}
-	}
-
+func runCodefreshPipeline(api *slack.Client, config *c, callback slack.InteractionCallback, repo string) error {
 	if repo == "" {
 		return errors.New("callback event had no repository")
 	}
@@ -106,11 +98,9 @@ func runCodefreshPipeline(api *slack.Client, config *c, callback slack.Interacti
 	defer func() {
 		if success {
 			updateSlackMessage(api, callback.Channel.ID, timestamp,
-				slack.MsgOptionText(":white_check_mark: Triggered! (project: *"+repo+"*)", false),
-			)
-			postSlackMessage(api, callback.Channel.ID,
 				slack.MsgOptionText(
-					"_:eyes: Look at <#"+config.NotifySlackChannel+"> for the release PR._", false),
+					":white_check_mark: Triggered! (project: *"+repo+"*)\n\n"+
+						"_:eyes: Look at <#"+config.NotifySlackChannel+"> for the release PR._", false),
 			)
 			return
 		}

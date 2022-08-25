@@ -8,10 +8,19 @@ import (
 	"strings"
 
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 )
 
-const SlackTriggerTechAllyProject = "trigger_tech_ally_project"
+const (
+	// Codefresh pipeline to trigger a new release
+	SlackTriggerTechAllyProject  = "trigger_tech_ally_project"
+	SlackSelectedTechAllyProject = "selected_tech_ally_project"
+
+	// Github action to sign the Lacework CLI
+	SlackSignLaceworkCLIGithubAction = "sign_cli_via_gh_action"
+	SlackMfaTokenForGithubAction     = "mfa_token_for_gh_action"
+)
 
 func connectToSlackViaSocketmode() (*socketmode.Client, *slack.Client, error) {
 	appToken := os.Getenv("SLACK_APP_TOKEN")
@@ -54,6 +63,20 @@ func listenToSlackEvents(client *socketmode.Client, api *slack.Client, config *c
 
 		switch evt.Type {
 
+		case socketmode.EventTypeEventsAPI:
+			apiEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
+			if !ok {
+				logger.Errorw("could not type cast the event to the EventsAPIEvent", "event", evt)
+				continue
+			}
+
+			client.Ack(*evt.Request)
+
+			err := handleEventMessage(api, config, apiEvent)
+			if err != nil {
+				logger.Errorw("unable to handle EventsAPI event", "event", evt, "error", err)
+			}
+
 		case socketmode.EventTypeSlashCommand:
 			cmd, ok := evt.Data.(slack.SlashCommand)
 			if !ok {
@@ -85,12 +108,50 @@ func listenToSlackEvents(client *socketmode.Client, api *slack.Client, config *c
 
 			switch callback.Type {
 			case slack.InteractionTypeBlockActions:
-				go func() {
-					if err := runCodefreshPipeline(api, config, callback); err != nil {
-						logger.Errorw("unable to run codefresh pipeline",
-							"error", err, "raw", callback)
+
+				if callback.BlockActionState == nil {
+					// we need the state of the action to know what to do
+					// with it, else, we drop the message
+					logger.Errorw("unable to process interactive message",
+						"error", "no block_action state field", "raw", callback)
+					continue
+				}
+
+				// from here, it is safe to call BlockActionState
+				actions := callback.BlockActionState.Values
+				for id, action := range actions {
+					switch id {
+
+					case SlackTriggerTechAllyProject:
+						repo := action[SlackSelectedTechAllyProject].SelectedOption.Value
+						go func() {
+							if err := runCodefreshPipeline(api, config, callback, repo); err != nil {
+								logger.Errorw("unable to run codefresh pipeline",
+									"error", err, "raw", callback)
+							}
+						}()
+
+					case SlackSignLaceworkCLIGithubAction:
+						mfaToken := action[SlackMfaTokenForGithubAction].Value
+						tag, ok := callback.Message.Metadata.EventPayload["tag"]
+						if !ok {
+							logger.Errorw("unable to sign the Lacework CLI since 'tag' field was missing",
+								"block_id", id, "raw", action)
+							continue
+						}
+
+						go func() {
+							if err := runGithubActionWithCallback(api, config, callback, mfaToken, tag.(string)); err != nil {
+								logger.Errorw("unable to run github workflow",
+									"error", err, "raw", callback)
+							}
+						}()
+
+					default:
+						logger.Errorw("unknown or not yet implemented interactive block_id",
+							"block_id", id, "raw", action)
 					}
-				}()
+				}
 
 			default:
 				notifySlackChannel(api,
@@ -107,6 +168,114 @@ func listenToSlackEvents(client *socketmode.Client, api *slack.Client, config *c
 		}
 
 	}
+}
+
+// handleEventMessage will take an event and handle it properly based on the type of event
+func handleEventMessage(api *slack.Client, config *c, event slackevents.EventsAPIEvent) error {
+	switch event.Type {
+
+	case slackevents.CallbackEvent:
+		innerEvent := event.InnerEvent
+		switch ev := innerEvent.Data.(type) {
+		case *slackevents.AppMentionEvent:
+			if err := handleAppMentionEvent(api, config, ev); err != nil {
+				return err
+			}
+		}
+
+	default:
+		return errors.New("unsupported event type")
+	}
+
+	return nil
+}
+
+// handleAppMentionEvent is used to take care of the AppMentionEvent when the bot is mentioned
+//
+// if we want to mention the Release Ally App from Codefresh use:
+// ```yaml
+//   version: "1.0"
+//
+//   stages:
+//     - "test"
+//
+//   steps:
+//     AppMention:
+//       type: slack-message-sender
+//       arguments:
+//         WEBHOOK_URL: ${{SLACK_WEBHOOK_URL}}
+//         MESSAGE: "<@U0279A42HV0> hello"
+// ```
+func handleAppMentionEvent(api *slack.Client, config *c, event *slackevents.AppMentionEvent) error {
+
+	notifySlackChannel(api,
+		config.NotifySlackChannel,
+		fmt.Sprintf(
+			"User <@%s> is interacting with the release ally app! :woohoo:\n\n*Message:*\n> %s",
+			event.User, event.Text),
+	)
+
+	if strings.Contains(event.Text, "sign_cli") {
+		actionArgs := strings.Split(event.Text, " ")
+		if len(actionArgs) != 4 {
+			// Malformed message
+			msg := "I was expecting a message with the following format:\n\n" +
+				"> @release_ally sign_cli VERSION BUILD_LINK"
+			notifySlackChannel(api, event.Channel, msg)
+			return nil
+		}
+
+		// coming from message:
+		//
+		// @release_ally sign_cli v0.55.0 https://g.codefresh.io/build/abc123
+		tag := actionArgs[2]
+		pipeline := actionArgs[3]
+
+		postSlackMessage(api,
+			event.Channel,
+			slack.MsgOptionBlocks(renderPayloadToSignCLI(tag, pipeline)...),
+			slack.MsgOptionMetadata(
+				slack.SlackMetadata{
+					EventType:    "sign_cli_metadata",
+					EventPayload: map[string]interface{}{"tag": tag},
+				}),
+		)
+		return nil
+	}
+
+	if strings.Contains(event.Text, "trigger_action") {
+
+		// Trigger generic Github Action, validate message format
+		actionArgs := strings.Split(event.Text, ":")
+		if len(actionArgs) != 2 {
+			// Malformed message
+			msg := "I was expecting a message with the following format:\n\n" +
+				"> @release_ally trigger_action:WORKFLOW_ID --repo [HOST/]OWNER/REPO"
+			notifySlackChannel(api, event.Channel, msg)
+			return nil
+		}
+
+		// TODO
+		return runGithubAction(api, event.Channel, actionArgs[1])
+	}
+
+	// Unknown message, print help
+	helpText := slack.NewTextBlockObject(
+		slack.MarkdownType,
+		":waving: Hi there!\n\n"+
+			"There are three things I can help you with:\n\n"+
+			"*1. To trigger releases from the following <list of projects|https://lacework.atlassian.net/l/cp/J73uu2wh>*\nType: `/release`\n\n"+
+			"*2. To sign the Lacework CLI artifacts*\nType: `@release_ally sign_cli VERSION BUILD_LINK`\n\n"+
+			"*3. To trigger Github Workflows*\nType: `@release_ally trigger_action:WORKFLOW_ID --repo [HOST/]OWNER/REPO`\n\n"+
+			"",
+		false, false)
+	// TODO maybe add an accesory
+	helpSection := slack.NewSectionBlock(helpText, nil, nil)
+	postSlackMessage(api,
+		event.Channel,
+		slack.MsgOptionBlocks(helpSection))
+	return nil
+
 }
 
 // createOptionBlockObjects - utility function for generating option block objects
@@ -173,6 +342,7 @@ func renderSlackCommandPayload(config *c) map[string]interface{} {
 						createOptionBlockObjects(config.ListProjects())...,
 					),
 				),
+				slack.SectionBlockOptionBlockID(SlackSelectedTechAllyProject),
 			),
 		}}
 }
