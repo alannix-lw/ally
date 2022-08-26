@@ -6,6 +6,7 @@ COPY startup/ally.toml /cf-cli
 ADD bin/ally-linux-amd64 /usr/local/bin/ally
 RUN rm -f /root/.cfconfig
 
-ENV DEBUG true
+# Install Github CLI
+RUN apk add github-cli
 
 ENTRYPOINT ["/usr/local/bin/ally"]

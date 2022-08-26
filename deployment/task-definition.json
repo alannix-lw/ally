@@ -36,11 +36,15 @@
                   "name": "SLACK_BOT_TOKEN",
                   "valueFrom": "arn:aws:secretsmanager:us-west-2:463783698038:secret:ally-release-slack-app-tWDc71:SLACK_BOT_TOKEN::"
             },
-	    {
+            {
                   "name": "SLACK_APP_TOKEN",
                   "valueFrom": "arn:aws:secretsmanager:us-west-2:463783698038:secret:ally-release-slack-app-tWDc71:SLACK_APP_TOKEN::"
             },
-	    {
+            {
+                  "name": "GH_TOKEN",
+                  "valueFrom": "arn:aws:secretsmanager:us-west-2:463783698038:secret:ally-release-slack-app-tWDc71:GH_TOKEN::"
+            },
+            {
                   "name": "CODEFRESH_API_KEY",
                   "valueFrom": "arn:aws:secretsmanager:us-west-2:463783698038:secret:ally-release-slack-app-tWDc71:CODEFRESH_API_KEY::"
             }
