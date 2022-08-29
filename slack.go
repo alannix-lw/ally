@@ -289,11 +289,11 @@ func renderSlackCommandPayload(config *c) map[string]interface{} {
 							Type: slack.PlainTextType,
 							Text: "tech-ally projects",
 						},
-						SlackTriggerTechAllyProject,
+						SlackSelectedTechAllyProject,
 						createOptionBlockObjects(config.ListProjects())...,
 					),
 				),
-				slack.SectionBlockOptionBlockID(SlackSelectedTechAllyProject),
+				slack.SectionBlockOptionBlockID(SlackTriggerTechAllyProject),
 			),
 		}}
 }
