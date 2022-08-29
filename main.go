@@ -19,6 +19,9 @@ func main() {
 	// goroutine to listen to Slack events
 	go listenToSlackEvents(client, api, config)
 
+	// notify slack channel about new deployment
+	notifySlackChannel(api, config.NotifySlackChannel, "I just got re-deployed! :blue-blob-dance:")
+
 	if err := client.Run(); err != nil {
 		logger.Fatalw("unable to run ally Slack app", "error", err.Error())
 	}
