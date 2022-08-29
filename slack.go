@@ -165,13 +165,7 @@ func handleEventMessage(api *slack.Client, config *c, event slackevents.EventsAP
 //         MESSAGE: "<@U0279A42HV0> hello"
 // ```
 func handleAppMentionEvent(api *slack.Client, config *c, event *slackevents.AppMentionEvent) error {
-
-	notifySlackChannel(api,
-		config.NotifySlackChannel,
-		fmt.Sprintf(
-			"User <@%s> is interacting with the release ally app! :woohoo:\n\n*Message:*\n> %s",
-			event.User, event.Text),
-	)
+	notifySlackChannel(api, config.NotifySlackChannel, formatAppMentionMsg(event.User, event.Channel, event.Text))
 
 	if strings.Contains(event.Text, "sign_cli") {
 		actionArgs := strings.Split(event.Text, " ")
@@ -360,4 +354,23 @@ func handleInteractiveEvent(api *slack.Client, config *c, callback slack.Interac
 	}
 
 	return nil
+}
+
+func formatAppMentionMsg(user, channel, text string) (msg string) {
+	// Who
+	if len(user) == 0 {
+		msg = "Incoming webhook interacting with the release ally app! :woohoo:"
+	} else {
+		msg = fmt.Sprintf("User <@%s> is interacting with the release ally app! :woohoo:", user)
+	}
+
+	// What
+	msg = fmt.Sprintf("%s\n\n*Message:*\n> %s", msg, text)
+
+	// Where
+	if len(channel) != 0 {
+		msg = fmt.Sprintf("%s\n\n*Channel:* <#%s>", msg, channel)
+	}
+
+	return
 }

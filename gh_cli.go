@@ -129,7 +129,7 @@ func runGithubActionWithCallback(api *slack.Client, config *c,
 	defer func() {
 		if success {
 			updateSlackMessage(api, callback.Channel.ID, timestamp,
-				slack.MsgOptionText("That was a success! :chewbacca:", false),
+				slack.MsgOptionText("That was a success! :megamix:", false),
 			)
 			return
 		}
