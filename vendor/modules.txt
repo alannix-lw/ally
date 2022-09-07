@@ -5,7 +5,7 @@ github.com/BurntSushi/toml/internal
 # github.com/gorilla/websocket v1.4.2
 ## explicit; go 1.12
 github.com/gorilla/websocket
-# github.com/lacework/go-sdk v0.39.0
+# github.com/lacework/go-sdk v0.41.1
 ## explicit; go 1.18
 github.com/lacework/go-sdk/lwlogger
 # github.com/mitchellh/go-homedir v1.1.0
