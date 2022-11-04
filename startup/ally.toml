@@ -116,3 +116,8 @@ variables = ["TF_MODULE=terraform-aws-ssm-agent"]
 repository = "terraform-aws-agentless-scanning"
 pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-aws-agentless-scanning"]
+
+[[project]]
+repository = "terraform-aws-alerts-to-s3"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-aws-alerts-to-s3"]
