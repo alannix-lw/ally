@@ -58,6 +58,11 @@ pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-azure-config"]
 
 [[project]]
+repository = "terraform-gcp-agentless-scanning"
+pipeline  = "terraform-modules/prepare-release-for"
+variables = ["TF_MODULE=terraform-gcp-agentless-scanning"]
+
+[[project]]
 repository = "terraform-azure-activity-log"
 pipeline  = "terraform-modules/prepare-release-for"
 variables = ["TF_MODULE=terraform-azure-activity-log"]
